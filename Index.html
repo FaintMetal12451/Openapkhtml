@@ -2,40 +2,77 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>APK Runner</title>
+    <title>Chrome OS Emulator</title>
+    <style>
+      #emulator-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #f8f8f8;
+        display: none;
+      }
+
+      #emulator-container.fullscreen {
+        display: block;
+      }
+
+      #emulator {
+        margin: 0 auto;
+        background-color: white;
+        width: 800px;
+        height: 600px;
+        border: 1px solid #ddd;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .fullscreen-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+      }
+    </style>
   </head>
   <body>
-    <h1>APK Runner</h1>
-    <input type="file" id="apk-file-input">
-    <button onclick="runApk()">Run APK</button>
-    <br>
-    <pre id="output"></pre>
+    <h1>Chrome OS Emulator</h1>
+    <button class="fullscreen-button" onclick="toggleFullScreen()">Toggle Full Screen</button>
+
+    <div id="emulator-container">
+      <div id="emulator">
+        <!-- Your emulator content here -->
+      </div>
+    </div>
 
     <script>
-      async function runApk() {
-        const fileInput = document.getElementById('apk-file-input');
-        const file = fileInput.files[0];
+      const emulatorContainer = document.getElementById('emulator-container');
+      const fullscreenButton = document.querySelector('.fullscreen-button');
 
-        if (!file) {
-          console.log('No APK file selected.');
-          return;
+      function toggleFullScreen() {
+        if (!document.fullscreenElement) {
+          if (emulatorContainer.requestFullscreen) {
+            emulatorContainer.requestFullscreen();
+          } else if (emulatorContainer.mozRequestFullScreen) {
+            emulatorContainer.mozRequestFullScreen();
+          } else if (emulatorContainer.webkitRequestFullscreen) {
+            emulatorContainer.webkitRequestFullscreen();
+          } else if (emulatorContainer.msRequestFullscreen) {
+            emulatorContainer.msRequestFullscreen();
+          }
+          emulatorContainer.classList.add('fullscreen');
+          fullscreenButton.textContent = 'Exit Full Screen';
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          }
+          emulatorContainer.classList.remove('fullscreen');
+          fullscreenButton.textContent = 'Toggle Full Screen';
         }
-
-        const reader = new FileReader();
-        
-        reader.onload = async function(event) {
-          const apkBuffer = event.target.result;
-          const response = await WebAssembly.instantiate(apkBuffer);
-          const instance = response.instance;
-          
-          // Example: Running some function in the APK
-          const result = instance.exports.someFunction();
-          
-          const outputElement = document.getElementById('output');
-          outputElement.textContent = `Result: ${result}`;
-        };
-
-        reader.readAsArrayBuffer(file);
       }
     </script>
   </body>
