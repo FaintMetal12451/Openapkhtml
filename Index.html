@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Open APK File Offline</title>
-</head>
-<body>
-<script>
-function openAPKFile(file) {
-var xhr = new XMLHttpRequest();
-xhr.open("GET", file, true);
-xhr.responseType = "arraybuffer";
-xhr.onload = function() {
-var arrayBuffer = xhr.response;
-var blob = new Blob([arrayBuffer], {type: "application/octet-stream"});
-var link = document.createElement("a");
-link.href = window.URL.createObjectURL(blob);
-link.download = file.split("/").pop();
-document.body.appendChild(link);
-link.click();
-};
-xhr.send();
-}
-</script>
-<input type="file" id="file" />
-<button onclick="openAPKFile(document.getElementById('file').files[0].path)">Open APK File</button>
-</body>
+  <head>
+    <meta charset="utf-8">
+    <title>APK Runner</title>
+  </head>
+  <body>
+    <h1>APK Runner</h1>
+    <input type="file" id="apk-file-input">
+    <button onclick="runApk()">Run APK</button>
+    <br>
+    <pre id="output"></pre>
+
+    <script>
+      async function runApk() {
+        const fileInput = document.getElementById('apk-file-input');
+        const file = fileInput.files[0];
+
+        if (!file) {
+          console.log('No APK file selected.');
+          return;
+        }
+
+        const reader = new FileReader();
+        
+        reader.onload = async function(event) {
+          const apkBuffer = event.target.result;
+          const response = await WebAssembly.instantiate(apkBuffer);
+          const instance = response.instance;
+          
+          // Example: Running some function in the APK
+          const result = instance.exports.someFunction();
+          
+          const outputElement = document.getElementById('output');
+          outputElement.textContent = `Result: ${result}`;
+        };
+
+        reader.readAsArrayBuffer(file);
+      }
+    </script>
+  </body>
 </html>
