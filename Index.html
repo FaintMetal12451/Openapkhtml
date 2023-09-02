@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Open APK File Offline</title>
+</head>
+<body>
+<script>
+function openAPKFile(file) {
+var xhr = new XMLHttpRequest();
+xhr.open("GET", file, true);
+xhr.responseType = "arraybuffer";
+xhr.onload = function() {
+var arrayBuffer = xhr.response;
+var blob = new Blob([arrayBuffer], {type: "application/octet-stream"});
+var link = document.createElement("a");
+link.href = window.URL.createObjectURL(blob);
+link.download = file.split("/").pop();
+document.body.appendChild(link);
+link.click();
+};
+xhr.send();
+}
+</script>
+<input type="file" id="file" />
+<button onclick="openAPKFile(document.getElementById('file').files[0].path)">Open APK File</button>
+</body>
+</html>
